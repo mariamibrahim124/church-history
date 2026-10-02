@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>رحلة تاريخ الكنيسة - المخطوطة التاريخية</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@600;700;800&display=swap');
+
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #120c06;
+  font-family: 'Amiri', 'Cairo', serif;
+  overscroll-behavior: none;
+}
+
+#stage {
+  position: absolute;
+  width: 1920px;
+  height: 1080px;
+  transform-origin: 0 0;
+  isolation: isolate;
+  background: url("background.jpeg") center center / cover no-repeat;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
+}
+
+/* بطاقات المخطوطات الأثرية */
+.n {
+  position: absolute;
+  z-index: 10;
+  box-sizing: border-box;
+
+  /* شفافية الكروت لإظهار الخلفية */
+  background: rgba(241, 228, 195, 0.72);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+
+  border: 2px solid #8c6a3c;
+  outline: 1px solid #4a341a;
+  outline-offset: -5px;
+  color: #2c1a0e;
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1.25;
+  overflow: hidden;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 8px 12px;
+  border-radius: 6px;
+  overflow-wrap: anywhere;
+
+  box-shadow:
+    0 10px 25px rgba(0, 0, 0, 0.6),
+    inset 0 0 30px rgba(139, 94, 40, 0.25);
+
+  transition: all 0.25s ease;
+  word-wrap: break-word;
+}
+
+.n:hover {
+  border-color: #d4af37;
+  box-shadow:
+    0 12px 30px rgba(212, 175, 55, 0.3),
+    inset 0 0 15px rgba(212, 175, 55, 0.2);
+}
+
+.n.sm {
+  font-size: 18px;
+  padding: 5px 7px;
+  line-height: 1.2;
+}
+
+.n.el {
+  border-radius: 25px;
+  background: linear-gradient(135deg, #701c1c, #420d0d);
+  border: 2px solid #d4af37;
+  outline-color: #ffd700;
+  font-weight: 700;
+  color: #f7e7ce;
+  font-size: 19px;
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.7),
+    0 0 15px rgba(212, 175, 55, 0.4);
+}
+
+.n b {
+  font-size: 20px;
+  color: #701c1c;
+  display: block;
+  margin-bottom: 4px;
+  font-family: 'Cairo', serif;
+  border-bottom: 1px dashed rgba(112, 28, 28, 0.3);
+  padding-bottom: 2px;
+}
+
+.n.el b {
+  color: #ffd700;
+  border-bottom: none;
+}
+
+/* أماكن إسقاط الكلمات */
+.slot {
+  display: inline-block;
+  vertical-align: middle;
+  height: 26px;
+  line-height: 22px;
+  margin: 1px 3px;
+  border: 2px dashed #8c6a3c;
+  border-radius: 5px;
+  background: rgba(85, 53, 22, 0.12);
+  color: #701c1c;
+  font-weight: 700;
+  font-size: 15px;
+  text-align: center;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.slot.hot {
+  background: rgba(212, 175, 55, 0.3);
+  border-color: #d4af37;
+  border-style: solid;
+  transform: scale(1.06);
+}
+
+.slot.ok {
+  background: linear-gradient(135deg, #2d6a4f, #1b4332);
+  border: 2px solid #52b788;
+  color: #f7e7ce;
+  box-shadow: 0 0 10px rgba(82, 183, 136, 0.6);
+  animation: pop 0.35s ease-out;
+}
+
+.slot.bad {
+  background: rgba(186, 24, 27, 0.25);
+  border-color: #ba181b;
+  animation: shake 0.35s ease-in-out;
+}
+
+@keyframes pop {
+  0% { transform: scale(0.85); }
+  50% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-5px); }
+  40%, 80% { transform: translateX(5px); }
+}
+
+svg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1920px;
+  height: 825px;
+  pointer-events: none;
+  z-index: 1;
+  overflow: visible;
+}
+
+#div {
+  position: absolute;
+  z-index: 5;
+  left: 589px;
+  top: 20px;
+  width: 4px;
+  height: 790px;
+  background: linear-gradient(
+    to bottom,
+    rgba(212, 175, 55, 0.1),
+    rgba(212, 175, 55, 0.6),
+    rgba(212, 175, 55, 0.1)
+  );
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+}
+
+/* بنك الكلمات السفلي */
+#bank {
+  position: absolute;
+  z-index: 50;
+  left: 20px;
+  top: 825px;
+  width: 1880px;
+  height: 235px;
+  box-sizing: border-box;
+
+  background: #2c1a0e url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect width='100' height='100' fill='%232c1a0e'/%3E%3Cpath d='M0 0l100 100M100 0L0 100' stroke='%231a0f08' stroke-width='1'/%3E%3C/svg%3E");
+
+  border: 3px solid #8c6a3c;
+  outline: 2px solid #d4af37;
+  outline-offset: -6px;
+  border-radius: 12px;
+  padding: 10px 24px;
+  color: #f7e7ce;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.85);
+}
+
+#bh {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  height: 36px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffd700;
+  border-bottom: 1px dashed rgba(212, 175, 55, 0.4);
+  padding-bottom: 6px;
+}
+
+#cnt {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+#bh > span:first-child {
+  min-width: 0;
+  flex: 1;
+  text-align: right;
+}
+
+#bh button {
+  font-family: 'Cairo', serif;
+  font-size: 16px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #8c6a3c, #553516);
+  color: #ffd700;
+  border: 1px solid #d4af37;
+  border-radius: 8px;
+  padding: 5px 22px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  transition: all 0.2s;
+}
+
+#bh button:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #a37c48, #6e461f);
+  box-shadow: 0 6px 15px rgba(212, 175, 55, 0.3);
+}
+
+#chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 9px;
+  margin-top: 9px;
+  height: 166px;
+  max-height: 166px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 2px 6px 6px 4px;
+  box-sizing: border-box;
+}
+
+#chips::-webkit-scrollbar {
+  width: 6px;
+}
+
+#chips::-webkit-scrollbar-thumb {
+  background: #8c6a3c;
+  border-radius: 4px;
+}
+
+.chip {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  background: linear-gradient(135deg, #f1e4c3, #d4af37);
+  color: #2c1a0e;
+  font-family: 'Cairo', serif;
+  font-weight: 700;
+  font-size: 16px;
+  padding: 6px 16px;
+  min-height: 36px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  border: 1px solid #8c6a3c;
+  cursor: grab;
+  touch-action: none;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  transition: transform 0.15s, opacity 0.15s;
+}
+
+.chip:hover {
+  transform: translateY(-2px) scale(1.03);
+  border-color: #701c1c;
+}
+
+.chip.dim {
+  opacity: 0.2;
+}
+
+.ghost {
+  position: absolute;
+  z-index: 100;
+  pointer-events: none;
+  transform: scale(1.08);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.7);
+}
+
+/* شاشة الفوز */
+#win {
+  position: absolute;
+  z-index: 1000;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(18, 12, 6, 0.95);
+  color: #ffd700;
+  font-size: 60px;
+  font-weight: 800;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  animation: fadeIn 0.4s ease-out;
+}
+
+#win sub {
+  font-size: 24px;
+  color: #f7e7ce;
+  margin-top: 18px;
+  font-weight: 400;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- أصوات الإجابة -->
+<audio
+  id="correctSound"
+  preload="auto"
+  src="https://raw.githubusercontent.com/romainsimon/uisfx/main/packages/uisfx/sounds/soft/success.mp3">
+</audio>
+
+<audio
+  id="wrongSound"
+  preload="auto"
+  src="https://raw.githubusercontent.com/romainsimon/uisfx/main/packages/uisfx/sounds/soft/error.mp3">
+</audio>
+
+<div id="stage">
+
+ <svg>
+  <defs>
+   <marker
+     id="ar"
+     viewBox="0 0 10 10"
+     refX="8"
+     refY="5"
+     markerWidth="7"
+     markerHeight="7"
+     orient="auto-start-reverse"
+     markerUnits="strokeWidth">
+
+    <path d="M0 0L10 5L0 10z" fill="#d4af37"/>
+   </marker>
+  </defs>
+ </svg>
+
+ <div id="div"></div>
+
+ <div id="bank">
+  <div id="bh">
+   <span>ضع الختم أو المفهوم في مكانه التاريخي المناسب على المخطوطة</span>
+   <span id="cnt"></span>
+   <button id="rst">إعادة اللعب</button>
+  </div>
+
+  <div id="chips"></div>
+ </div>
+
+ <div id="win">
+  ✨ اكتملت المخطوطة بنجاح! ✨
+  <br>
+  <span>أحسنتم عملاً في استكمال خريطة المجامع والانشقاقات الكنسية</span>
+  <sub>انقر في أي مكان للبدء من جديد</sub>
+ </div>
+
+</div>
+
+<script>
+
+const N=[
+
+['christ',1610,15,290,44,'السيد المسيح'],
+
+['church',1610,72,290,44,'الكنيسة'],
+
+['jer',1530,130,370,230,
+'#أول مجمع\nمجمع {أورشليم}\nرئيس المجمع القديس يعقوب الرسول\nرتبته {أسقف أورشليم}\nسبب المجمع النظر في بحث شروط قبول الداخلين من الأمم إلى المسيحية'],
+
+['mas',930,10,250,44,'المجامع المسكونية','el'],
+
+['nic',1225,72,280,325,
+'#مجمع {نيقية}\nسنة 325 م\nالإمبراطور {قسطنطين}\nالحاضرين {318}\nلمناقشة بدعة {أريوس}\nرتبته قساً\nالبدعة إنكار لاهوت المسيح\nبابا الإسكندرية البابا {ألكسندروس}\nبطل المجمع الشماس {أثناسيوس}\nقانون الإيمان "حتى ليس لملكه انقضاء"'],
+
+['con',915,72,280,325,
+'#مجمع {القسطنطينية}\nسنة 381 م\nالإمبراطور {ثيودوسيوس الكبير}\nالحاضرين {150}\nلمناقشة بدعة {مقدونيوس}\nرتبته أسقف القسطنطينية\nالبدعة إنكار لاهوت الروح القدس\nبابا الإسكندرية البابا {تيموثاوس}\nقانون الإيمان من "نعم نؤمن بالروح القدس" حتى آخره'],
+
+['eph',605,72,280,325,
+'#مجمع {أفسس}\nسنة 431 م\nالإمبراطور {ثيودوسيوس الكبير}\nالحاضرين {200}\nلمناقشة بدعة {نسطور}\nرتبته بطريرك القسطنطينية\nالبدعة المسيح أقنومان متباينان\nبابا الإسكندرية البابا {كيرلس}\nقانون الإيمان مقدمة قانون الإيمان "نعظمك يا أم النور ....."'],
+
+['one',1140,412,380,46,
+'الكنيسة الواحدة الوحيدة الجامعة الرسولية'],
+
+['e1',1630,420,180,44,'الانشقاق الأول','el'],
+
+['ephII',1550,478,350,340,
+'#مجمع {أفسس الثاني}\nسنة 449 م\nالحاضرين 135\nالإمبراطور ثيودوسيوس الصغير\nللفصل في النزاع بين {أوطاخي} رئيس دير بالقسطنطينية و{فلابيانوس} رئيس أساقفة القسطنطينية\nرئيس المجمع البابا {ديسقوروس}\nنتيجة المجمع تبرئة {أوطاخي} وحرمان {فلابيانوس}'],
+
+['chal',1170,478,360,340,
+'#مجمع {خلقدونية}\nسنة 451 م\nالإمبراطورة {بوليكاريا} والإمبراطور {ماركيان}\nبابا روما البابا لاون\nلمحاكمة {البابا ديسقوروس}\nبسبب تبرئته لأوطاخي وعدم قراءة رسالة بابا روما\nنتيجة المجمع عزل ونفي البابا ديسقوروس وتعيين أسقف على مصر بروتاريوس ويسمى ب{البطرك الملكاني} وتعميم مبادئ عقيدة المجمع ويسمى {طومس لاون}'],
+
+['cd',850,422,270,120,
+'كنيسة تؤمن بقرارات مجمع خلقدونية\nكنائس {غربية}\nكنائس خلقدونية'],
+
+['nc',850,578,270,215,
+'كنيسة لا تؤمن بقرارات مجمع خلقدونية\nكنائس {شرقية}\nكنائس غير خلقدونية\nالكنائس القبطية والسريانية والأرمنية والأحباش والإريتريين والهنود'],
+
+['e2',620,568,180,44,'الانشقاق الثاني','el'],
+
+['b1054',360,620,440,175,
+'سبب الانشقاق تعديل قانون الإيمان لـ "الروح القدس المنبثق من الآب والابن"\nسنة 1054 م\nانقسمت {الكنيسة الغربية الخلقدونية}'],
+
+['orth',20,652,270,125,
+'#رفض التعديل\nكنيسة {الروم الأرثوذكس}\nكنائس شرق أوروبا وآسيا الصغرى'],
+
+['cm',300,478,275,125,
+'#إدخال التعديل\nالكنيسة {الكاثوليكية}\nكنائس غرب أوروبا'],
+
+['e3',300,165,220,44,'الانشقاق الثالث','el'],
+
+['b1517',300,225,275,235,
+'سبب الانشقاق ازدياد نفوذ رجال الإكليروس وانتشار أفكار المطهر وصكوك الغفران\nسنة 1517 م\nانقسمت {الكنيسة الكاثوليكية}'],
+
+['mov',300,112,275,46,'الحركات البروتستانتية'],
+
+['prot',300,45,135,60,'الكنائس البروتستانتية','sm'],
+
+['adv',445,45,135,46,'{أدفنتست}'],
+
+['jw',445,0,135,44,'{شهود يهوه}'],
+
+['cathR',15,405,270,50,'الكنيسة الكاثوليكية'],
+
+['b1538',15,190,275,200,
+'سبب الانشقاق رفض {بابا روما} استصدار مرسوم بعدم شرعية زواج الملك {هنري الثامن} من زوجته\nسنة 1538 م\nانقسمت {الكنيسة الكاثوليكية}'],
+
+['cathA',15,92,138,62,'الكنيسة الكاثوليكية','sm'],
+
+['angA',160,92,138,62,'الكنيسة الإنجليكانية','sm'],
+
+['ang1',15,15,138,62,'{الكنيسة الإنجليكانية}','sm'],
+
+['meth',160,15,138,62,'طائفة الميثوديست','sm']
+
+];
+
+const E=[
+
+['christ','b','church','t'],
+['church','b','jer','t'],
+['jer','l','mas','r'],
+['mas','b','nic','t'],
+['mas','b','con','t'],
+['mas','b','eph','t'],
+
+['nic','b','one','t'],
+['con','b','one','t'],
+['eph','b','one','t'],
+
+['one','r','e1','l'],
+
+['e1','b','ephII','t'],
+['e1','b','chal','t'],
+
+['chal','l','cd','r'],
+['chal','l','nc','r'],
+
+['cd','l','e2','r'],
+['e2','b','b1054','t'],
+
+['b1054','t','cm','b'],
+['b1054','l','orth','r'],
+
+['cm','t','b1517','b'],
+
+['b1517','t','mov','b'],
+['b1517','l','cathR','r'],
+
+['cathR','t','b1538','b'],
+
+['b1538','t','cathA','b'],
+['b1538','t','angA','b'],
+
+['angA','t','ang1','b'],
+['angA','t','meth','b'],
+
+['mov','t','prot','b'],
+['mov','t','adv','b'],
+
+['adv','t','jw','b']
+
+];
+
+const stage=document.getElementById('stage'),
+      svg=stage.querySelector('svg'),
+      chips=document.getElementById('chips'),
+      cnt=document.getElementById('cnt');
+
+/* الأصوات */
+const correctSound=document.getElementById('correctSound');
+const wrongSound=document.getElementById('wrongSound');
+
+function playSound(sound){
+  sound.currentTime=0;
+  sound.play().catch(()=>{});
+}
+
+let S=1,
+    total=0,
+    done=0,
+    ans=[];
+
+function fit(){
+
+  S=Math.min(
+    innerWidth/1920,
+    innerHeight/1080
+  );
+
+  stage.style.transform=`scale(${S})`;
+
+  stage.style.left=
+    Math.max(
+      0,
+      (innerWidth-1920*S)/2
+    )+'px';
+
+  stage.style.top=
+    Math.max(
+      0,
+      (innerHeight-1080*S)/2
+    )+'px';
+}
+
+addEventListener('resize',fit);
+
+fit();
+
+function build(){
+
+  stage.querySelectorAll('.n')
+    .forEach(x=>x.remove());
+
+  svg.querySelectorAll('line')
+    .forEach(x=>x.remove());
+
+  chips.innerHTML='';
+
+  ans=[];
+
+  done=0;
+
+  const box={};
+
+  N.forEach(([id,x,y,w,h,t,c])=>{
+
+    const d=document.createElement('div');
+
+    d.className='n '+(c||'');
+
+    d.style.cssText=
+      `left:${x}px;top:${y}px;width:${w}px;height:${h}px`;
+
+    const k=(c==='sm')?8:10;
+
+    d.innerHTML=
+      '<div>'+
+      t.split('\n').map(l=>{
+
+        l=l.replace(
+          /\{([^}]+)\}/g,
+          (m,a)=>{
+
+            ans.push(a);
+
+            return `
+              <span
+                class="slot"
+                data-a="${a}"
+                style="min-width:${a.length*k+20}px">
+              </span>
+            `;
+          }
+        );
+
+        return l[0]==='#'
+          ? '<b>'+l.slice(1)+'</b>'
+          : l;
+
+      }).join('<br>')+
+      '</div>';
+
+    stage.insertBefore(
+      d,
+      document.getElementById('div')
+    );
+
+    box[id]=[x,y,w,h];
+
+  });
+
+  const P=(id,s)=>{
+
+    const[x,y,w,h]=box[id];
+
+    return s==='t'
+      ?[x+w/2,y]
+      :s==='b'
+      ?[x+w/2,y+h]
+      :s==='l'
+      ?[x,y+h/2]
+      :[x+w,y+h/2];
+
+  };
+
+  E.forEach(([a,sa,b,sb])=>{
+
+    const p=P(a,sa),
+          q=P(b,sb),
+
+          l=document.createElementNS(
+            'http://www.w3.org/2000/svg',
+            'line'
+          );
+
+    l.setAttribute('x1',p[0]);
+    l.setAttribute('y1',p[1]);
+    l.setAttribute('x2',q[0]);
+    l.setAttribute('y2',q[1]);
+
+    l.setAttribute('stroke','#d4af37');
+
+    l.setAttribute(
+      'stroke-width',
+      '2.2'
+    );
+
+    l.setAttribute(
+      'stroke-linecap',
+      'round'
+    );
+
+    l.setAttribute(
+      'stroke-linejoin',
+      'round'
+    );
+
+    l.setAttribute(
+      'stroke-dasharray',
+      '6,4'
+    );
+
+    l.setAttribute(
+      'marker-end',
+      'url(#ar)'
+    );
+
+    svg.appendChild(l);
+
+  });
+
+  total=ans.length;
+
+  [...ans]
+    .sort(()=>Math.random()-.5)
+    .forEach(a=>{
+
+      const c=document.createElement('div');
+
+      c.className='chip';
+
+      c.textContent=a;
+
+      c.dataset.a=a;
+
+      chips.appendChild(c);
+
+    });
+
+  upd();
+
+  document.getElementById('win')
+    .style.display='none';
+
+}
+
+function upd(){
+
+  cnt.textContent=
+    `المكتمل: ${done} / ${total}`;
+
+}
+
+let cur=null,
+    ghost=null;
+
+const pt=e=>{
+
+  const r=stage.getBoundingClientRect();
+
+  return[
+    (e.clientX-r.left)/S,
+    (e.clientY-r.top)/S
+  ];
+
+};
+
+function mv(e){
+
+  const[x,y]=pt(e);
+
+  ghost.style.left=
+    x-ghost.offsetWidth/2+'px';
+
+  ghost.style.top=
+    y-ghost.offsetHeight/2+'px';
+
+  const s=near(e);
+
+  stage
+    .querySelectorAll('.slot.hot')
+    .forEach(z=>z.classList.remove('hot'));
+
+  if(s)
+    s.classList.add('hot');
+
+}
+
+function near(e){
+
+  let best=null,
+      bd=1e9;
+
+  stage
+    .querySelectorAll('.slot:not(.ok)')
+    .forEach(s=>{
+
+      const r=s.getBoundingClientRect(),
+            m=16*S;
+
+      if(
+        e.clientX>r.left-m &&
+        e.clientX<r.right+m &&
+        e.clientY>r.top-m &&
+        e.clientY<r.bottom+m
+      ){
+
+        const d=Math.hypot(
+          e.clientX-(r.left+r.right)/2,
+          e.clientY-(r.top+r.bottom)/2
+        );
+
+        if(d<bd){
+
+          bd=d;
+
+          best=s;
+
+        }
+
+      }
+
+    });
+
+  return best;
+
+}
+
+chips.addEventListener(
+  'pointerdown',
+  e=>{
+
+    const c=e.target.closest('.chip');
+
+    if(!c)
+      return;
+
+    e.preventDefault();
+
+    cur=c;
+
+    c.classList.add('dim');
+
+    ghost=c.cloneNode(true);
+
+    ghost.className='chip ghost';
+
+    stage.appendChild(ghost);
+
+    mv(e);
+
+  }
+);
+
+addEventListener(
+  'pointermove',
+  e=>{
+
+    if(cur)
+      mv(e);
+
+  }
+);
+
+addEventListener(
+  'pointerup',
+  e=>{
+
+    if(!cur)
+      return;
+
+    const s=near(e);
+
+    stage
+      .querySelectorAll('.slot.hot')
+      .forEach(z=>z.classList.remove('hot'));
+
+    ghost.remove();
+
+    /* الإجابة الصحيحة */
+    if(
+      s &&
+      s.dataset.a===cur.dataset.a
+    ){
+
+      playSound(correctSound);
+
+      s.textContent=cur.dataset.a;
+
+      s.classList.add('ok');
+
+      cur.remove();
+
+      done++;
+
+      upd();
+
+      if(done===total){
+
+        setTimeout(
+          ()=>document.getElementById('win')
+            .style.display='flex',
+          400
+        );
+
+      }
+
+    }
+
+    /* الإجابة الخاطئة */
+    else{
+
+      playSound(wrongSound);
+
+      cur.classList.remove('dim');
+
+      if(s){
+
+        s.classList.add('bad');
+
+        setTimeout(
+          ()=>s.classList.remove('bad'),
+          450
+        );
+
+      }
+
+    }
+
+    cur=null;
+
+  }
+);
+
+document.getElementById('rst').onclick=build;
+
+document.getElementById('win').onclick=build;
+
+build();
+
+</script>
+
+</body>
+</html>
